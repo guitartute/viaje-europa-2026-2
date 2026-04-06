@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Euroviaje 2026 | Pro</title>
+    <title>Euroviaje 2026 | Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -11,31 +11,29 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         input[type="number"]::-webkit-inner-spin-button { display: none; }
+        .card-expand { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen pb-24">
+<body class="bg-slate-50 min-h-screen pb-24 font-sans">
 
-    <header class="bg-slate-900 text-white p-5 sticky top-0 z-50 shadow-xl">
+    <header class="bg-slate-900 text-white p-5 sticky top-0 z-50 shadow-2xl">
         <div class="max-w-xl mx-auto">
             <div class="flex justify-between items-center mb-4">
-                <h1 class="text-xl font-bold flex items-center gap-2">
-                    <i data-lucide="map"></i> EUROVIAJE 2026
-                </h1>
-                <div id="countdown" class="text-xs bg-blue-600 px-2 py-1 rounded-full font-bold"></div>
+                <h1 class="text-xl font-black italic tracking-tighter text-blue-400">EURO 2026</h1>
+                <div id="countdown" class="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-3 py-1 rounded-full font-bold uppercase"></div>
             </div>
-            
-            <div class="grid grid-cols-3 gap-3">
-                <div class="bg-slate-800 p-2 rounded-xl border border-slate-700">
-                    <p class="text-[10px] uppercase text-slate-400">Total</p>
-                    <p id="stat-total" class="text-lg font-bold text-blue-400">$0</p>
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-slate-800/50 p-3 rounded-2xl border border-white/5">
+                    <p class="text-[9px] uppercase text-slate-400 font-bold mb-1">Presupuesto</p>
+                    <p id="stat-total" class="text-base font-black text-white">$0</p>
                 </div>
-                <div class="bg-slate-800 p-2 rounded-xl border border-slate-700">
-                    <p class="text-[10px] uppercase text-slate-400">Pagado</p>
-                    <p id="stat-pagado" class="text-lg font-bold text-green-400">$0</p>
+                <div class="bg-slate-800/50 p-3 rounded-2xl border border-white/5">
+                    <p class="text-[9px] uppercase text-slate-400 font-bold mb-1">Pagado</p>
+                    <p id="stat-pagado" class="text-base font-black text-green-400">$0</p>
                 </div>
-                <div class="bg-slate-800 p-2 rounded-xl border border-slate-700">
-                    <p class="text-[10px] uppercase text-slate-400">Pendiente</p>
-                    <p id="stat-pendiente" class="text-lg font-bold text-orange-400">$0</p>
+                <div class="bg-slate-800/50 p-3 rounded-2xl border border-white/5">
+                    <p class="text-[9px] uppercase text-slate-400 font-bold mb-1">Falta</p>
+                    <p id="stat-pendiente" class="text-base font-black text-orange-400">$0</p>
                 </div>
             </div>
         </div>
@@ -43,28 +41,29 @@
 
     <main class="max-w-xl mx-auto p-4">
         
-        <section id="tab-itinerario" class="tab-content active">
-            <div id="itinerario-list" class="space-y-4">
-                <p class="text-center p-10 text-slate-500">Cargando aventura...</p>
-            </div>
+        <section id="tab-itinerario" class="tab-content active space-y-4">
+            <div id="itinerario-list" class="space-y-4"></div>
         </section>
 
-        <section id="tab-globales" class="tab-content">
-            <div class="bg-white rounded-2xl shadow-sm border p-4 space-y-4">
-                <h2 class="font-bold text-lg border-b pb-2">Gastos Generales</h2>
-                <div id="globales-list" class="space-y-3">
-                    </div>
+        <section id="tab-globales" class="tab-content space-y-4">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-black text-slate-800 uppercase text-sm tracking-widest">Gastos Globales</h2>
+                    <button onclick="addGlobalRow()" class="bg-blue-600 text-white p-2 rounded-full shadow-lg">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="globales-list" class="space-y-3"></div>
             </div>
         </section>
-
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-        <button onclick="showTab('itinerario', this)" class="flex flex-col items-center text-blue-600">
-            <i data-lucide="calendar"></i><span class="text-[10px] font-bold">Itinerario</span>
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-slate-900/90 backdrop-blur-lg rounded-full p-2 flex justify-around items-center shadow-2xl border border-white/10">
+        <button onclick="showTab('itinerario', this)" class="p-3 text-blue-400 bg-white/10 rounded-full transition-all">
+            <i data-lucide="calendar"></i>
         </button>
-        <button onclick="showTab('globales', this)" class="flex flex-col items-center text-slate-400">
-            <i data-lucide="shopping-bag"></i><span class="text-[10px] font-bold">Globales</span>
+        <button onclick="showTab('globales', this)" class="p-3 text-slate-400 hover:text-white transition-all">
+            <i data-lucide="globe"></i>
         </button>
     </nav>
 
@@ -75,18 +74,17 @@
 
         let itinerario = [];
         let globales = [];
+        let otros = [];
 
         async function fetchData() {
-            try {
-                const { data: itData } = await _supabase.from('itinerario').select('*').order('id', { ascending: true });
-                const { data: glData } = await _supabase.from('globales').select('*').order('id', { ascending: true });
-                
-                itinerario = itData || [];
-                globales = glData || [];
-                renderAll();
-            } catch (err) {
-                console.error("Error:", err);
-            }
+            const { data: itData } = await _supabase.from('itinerario').select('*').order('id', { ascending: true });
+            const { data: glData } = await _supabase.from('globales').select('*').order('id', { ascending: true });
+            const { data: otData } = await _supabase.from('detalles_otros').select('*');
+            
+            itinerario = itData || [];
+            globales = glData || [];
+            otros = otData || [];
+            renderAll();
         }
 
         function renderAll() {
@@ -98,72 +96,96 @@
 
         function renderItinerario() {
             const container = document.getElementById('itinerario-list');
-            container.innerHTML = itinerario.map(dia => `
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 transition-all">
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-2 mb-3">
-                        <span class="font-black text-slate-800 text-sm italic uppercase">${dia.fecha}</span>
-                        <input type="text" onchange="updateDB('itinerario', ${dia.id}, 'pais', this.value)" 
-                               placeholder="País" value="${dia.pais || ''}" 
-                               class="text-right text-xs font-bold text-blue-600 focus:outline-none bg-transparent w-24">
-                    </div>
-                    <div class="space-y-3">
+            container.innerHTML = itinerario.map(dia => {
+                const otrosDia = otros.filter(o => o.itinerario_id === dia.id);
+                return `
+                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 p-6">
+                    <div class="flex justify-between items-center mb-4">
                         <div>
+                            <p class="text-[10px] font-black text-blue-500 uppercase tracking-tighter">${dia.fecha}</p>
                             <input type="text" onchange="updateDB('itinerario', ${dia.id}, 'ciudad', this.value)" 
-                                   placeholder="📍 ¿A qué ciudad vas?" value="${dia.ciudad || ''}" 
-                                   class="w-full text-base font-semibold text-slate-700 outline-none">
+                                   value="${dia.ciudad || ''}" placeholder="Destino..."
+                                   class="text-lg font-bold text-slate-800 bg-transparent outline-none w-full">
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
-                                <label class="text-[9px] text-slate-400 block font-black uppercase">Traslado</label>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-slate-400">$</span>
-                                    <input type="number" onchange="updateDB('itinerario', ${dia.id}, 'traslado_monto', this.value)" 
-                                           value="${dia.traslado_monto}" class="w-full bg-transparent font-bold text-sm outline-none">
-                                    <input type="checkbox" ${dia.traslado_pago ? 'checked' : ''} 
-                                           onchange="updateDB('itinerario', ${dia.id}, 'traslado_pago', this.checked)"
-                                           class="w-4 h-4 rounded-full border-slate-300 text-blue-600">
-                                </div>
-                            </div>
-                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
-                                <label class="text-[9px] text-slate-400 block font-black uppercase">Alojamiento</label>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-slate-400">$</span>
-                                    <input type="number" onchange="updateDB('itinerario', ${dia.id}, 'aloj_monto', this.value)" 
-                                           value="${dia.aloj_monto}" class="w-full bg-transparent font-bold text-sm outline-none">
-                                    <input type="checkbox" ${dia.aloj_pago ? 'checked' : ''} 
-                                           onchange="updateDB('itinerario', ${dia.id}, 'aloj_pago', this.checked)"
-                                           class="w-4 h-4 rounded-full border-slate-300 text-blue-600">
-                                </div>
-                            </div>
+                        <input type="text" onchange="updateDB('itinerario', ${dia.id}, 'pais', this.value)" 
+                               value="${dia.pais || ''}" placeholder="PAÍS" 
+                               class="text-right text-[10px] font-black text-slate-400 uppercase w-20 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="bg-slate-50 p-3 rounded-2xl">
+                            <label class="text-[8px] font-black uppercase text-slate-400 block mb-1">🚌 Traslado</label>
+                            <input type="number" onchange="updateDB('itinerario', ${dia.id}, 'traslado_monto', this.value)" 
+                                   value="${dia.traslado_monto}" class="w-full bg-transparent font-bold text-xs outline-none">
+                            <input type="checkbox" ${dia.traslado_pago ? 'checked' : ''} onchange="updateDB('itinerario', ${dia.id}, 'traslado_pago', this.checked)" class="mt-1 accent-green-500">
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-2xl">
+                            <label class="text-[8px] font-black uppercase text-slate-400 block mb-1">🏨 Alojamiento</label>
+                            <input type="number" onchange="updateDB('itinerario', ${dia.id}, 'aloj_monto', this.value)" 
+                                   value="${dia.aloj_monto}" class="w-full bg-transparent font-bold text-xs outline-none">
+                            <input type="checkbox" ${dia.aloj_pago ? 'checked' : ''} onchange="updateDB('itinerario', ${dia.id}, 'aloj_pago', this.checked)" class="mt-1 accent-green-500">
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-2xl">
+                            <label class="text-[8px] font-black uppercase text-slate-400 block mb-1">🍕 Comida</label>
+                            <input type="number" onchange="updateDB('itinerario', ${dia.id}, 'comida_monto', this.value)" 
+                                   value="${dia.comida_monto}" class="w-full bg-transparent font-bold text-xs outline-none">
+                            <input type="checkbox" ${dia.comida_pago ? 'checked' : ''} onchange="updateDB('itinerario', ${dia.id}, 'comida_pago', this.checked)" class="mt-1 accent-green-500">
                         </div>
                     </div>
-                </div>
-            `).join('');
+
+                    <div class="bg-slate-100/50 rounded-2xl p-3">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[9px] font-black uppercase text-slate-500 italic">✨ Otros Detalles</span>
+                            <button onclick="addOtrosRow(${dia.id})" class="text-blue-600"><i data-lucide="plus-circle" class="w-4 h-4"></i></button>
+                        </div>
+                        <div id="otros-container-${dia.id}" class="space-y-2">
+                            ${otrosDia.map(o => `
+                                <div class="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm">
+                                    <input type="checkbox" ${o.pagado ? 'checked' : ''} onchange="updateDB('detalles_otros', ${o.id}, 'pagado', this.checked)" class="accent-blue-500">
+                                    <input type="text" value="${o.categoria || ''}" onchange="updateDB('detalles_otros', ${o.id}, 'categoria', this.value)" class="text-[10px] flex-1 outline-none font-medium text-slate-600" placeholder="Ej: Museo">
+                                    <input type="number" value="${o.monto}" onchange="updateDB('detalles_otros', ${o.id}, 'monto', this.value)" class="w-12 text-right text-[10px] font-bold outline-none">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         function renderGlobales() {
             const container = document.getElementById('globales-list');
-            if (globales.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-400 text-sm">No hay gastos agregados.</p>';
-                return;
-            }
             container.innerHTML = globales.map(g => `
-                <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl">
-                    <input type="checkbox" ${g.pagado ? 'checked' : ''} onchange="updateDB('globales', ${g.id}, 'pagado', this.checked)" class="w-5 h-5">
-                    <input type="text" value="${g.descripcion || ''}" onchange="updateDB('globales', ${g.id}, 'descripcion', this.value)" 
-                           class="flex-1 bg-transparent text-sm outline-none" placeholder="Vuelos, Seguro...">
-                    <input type="number" value="${g.monto}" onchange="updateDB('globales', ${g.id}, 'monto', this.value)" 
-                           class="w-16 bg-transparent text-right font-bold text-sm outline-none">
+                <div class="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <input type="checkbox" ${g.pagado ? 'checked' : ''} onchange="updateDB('globales', ${g.id}, 'pagado', this.checked)" class="w-5 h-5 accent-blue-600">
+                    <input type="text" value="${g.descripcion || ''}" onchange="updateDB('globales', ${g.id}, 'descripcion', this.value)" class="flex-1 bg-transparent text-sm font-bold outline-none" placeholder="Descripción...">
+                    <input type="number" value="${g.monto}" onchange="updateDB('globales', ${g.id}, 'monto', this.value)" class="w-20 bg-transparent text-right font-black text-blue-600 outline-none">
                 </div>
             `).join('');
         }
 
+        async function addGlobalRow() {
+            const { data, error } = await _supabase.from('globales').insert([{ descripcion: '', monto: 0, pagado: false }]).select();
+            if(!error) fetchData();
+        }
+
+        async function addOtrosRow(itId) {
+            const { error } = await _supabase.from('detalles_otros').insert([{ itinerario_id: itId, categoria: '', monto: 0, pagado: false }]);
+            if(!error) fetchData();
+        }
+
         async function updateDB(tabla, id, columna, valor) {
             await _supabase.from(tabla).update({ [columna]: valor }).eq('id', id);
-            const lista = (tabla === 'itinerario' ? itinerario : globales);
-            const item = lista.find(x => x.id === id);
+            updateStatsLocally(tabla, id, columna, valor);
+        }
+
+        function updateStatsLocally(tabla, id, columna, valor) {
+            let item;
+            if(tabla === 'itinerario') item = itinerario.find(x => x.id === id);
+            if(tabla === 'globales') item = globales.find(x => x.id === id);
+            if(tabla === 'detalles_otros') item = otros.find(x => x.id === id);
+            
             if (item) {
-                item[columna] = valor;
+                item[columna] = (columna.includes('monto') || columna === 'monto') ? Number(valor) : valor;
                 updateStats();
             }
         }
@@ -171,13 +193,18 @@
         function updateStats() {
             let total = 0; let pagado = 0;
             itinerario.forEach(d => {
-                total += (Number(d.traslado_monto) || 0) + (Number(d.aloj_monto) || 0) + (Number(d.otros_monto) || 0);
+                total += (Number(d.traslado_monto) || 0) + (Number(d.aloj_monto) || 0) + (Number(d.comida_monto) || 0);
                 if(d.traslado_pago) pagado += (Number(d.traslado_monto) || 0);
                 if(d.aloj_pago) pagado += (Number(d.aloj_monto) || 0);
+                if(d.comida_pago) pagado += (Number(d.comida_monto) || 0);
             });
             globales.forEach(g => {
                 total += (Number(g.monto) || 0);
                 if(g.pagado) pagado += (Number(g.monto) || 0);
+            });
+            otros.forEach(o => {
+                total += (Number(o.monto) || 0);
+                if(o.pagado) pagado += (Number(o.monto) || 0);
             });
             document.getElementById('stat-total').innerText = `$${total.toLocaleString()}`;
             document.getElementById('stat-pagado').innerText = `$${pagado.toLocaleString()}`;
@@ -187,19 +214,14 @@
         function showTab(name, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${name}`).classList.add('active');
-            document.querySelectorAll('nav button').forEach(b => b.classList.replace('text-blue-600', 'text-slate-400'));
-            btn.classList.replace('text-slate-400', 'text-blue-600');
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('text-blue-400', 'bg-white/10'));
+            btn.classList.add('text-blue-400', 'bg-white/10');
         }
 
-        function updateCountdown() {
-            const inicio = new Date('2026-05-04');
-            const diff = inicio - new Date();
-            const dias = Math.ceil(diff / (1000 * 60 * 60 * 24));
-            document.getElementById('countdown').innerText = dias > 0 ? `FALTAN ${dias} DÍAS` : "🚀 ¡EN VIAJE!";
-        }
-
-        updateCountdown();
         fetchData();
+        const inicio = new Date('2026-05-04');
+        const dias = Math.ceil((inicio - new Date()) / (1000 * 60 * 60 * 24));
+        document.getElementById('countdown').innerText = dias > 0 ? `FALTAN ${dias} DÍAS` : "DISFRUTANDO";
     </script>
 </body>
 </html>
