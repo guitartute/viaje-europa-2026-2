@@ -72,39 +72,49 @@
         </button>
     </nav>
 
-    <script>
+<script>
         // CONFIGURACIÓN SUPABASE
         const SB_URL = "https://lmblbrzocgyfqbiyrjte.supabase.co";
         const SB_KEY = "sb_publishable_gBLWhsmXKbPqwjSMPIL96A_BQjLDiZe"; 
-        const supabase = supabase.createClient(SB_URL, SB_KEY);
+        
+        // Usamos un nombre diferente para la variable para evitar conflictos con la librería
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // ESTADO DE LA APP
         let itinerario = [];
         let globales = [];
 
         async function fetchData() {
-            // Cargar Itinerario
-            const { data: itData } = await supabase.from('itinerario').select('*').order('id', { ascending: true });
-            itinerario = itData || [];
-            
-            // Cargar Globales
-            const { data: glData } = await supabase.from('globales').select('*').order('id', { ascending: true });
-            globales = glData || [];
+            try {
+                const { data: itData, error: itError } = await _supabase.from('itinerario').select('*').order('id', { ascending: true });
+                if (itError) throw itError;
+                itinerario = itData || [];
+                
+                const { data: glData, error: glError } = await _supabase.from('globales').select('*').order('id', { ascending: true });
+                if (glError) throw glError;
+                globales = glData || [];
 
-            renderAll();
+                renderAll();
+            } catch (err) {
+                console.error("Error cargando datos:", err);
+                document.getElementById('itinerario-list').innerHTML = `<p class="text-red-500 p-4">Error de conexión: ${err.message}</p>`;
+            }
         }
 
         function renderAll() {
             renderItinerario();
             renderGlobales();
             updateStats();
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
         function renderItinerario() {
             const container = document.getElementById('itinerario-list');
+            if (itinerario.length === 0) {
+                container.innerHTML = '<p class="text-center p-10 text-gray-400">No hay datos. Verifica el SQL Editor en Supabase.</p>';
+                return;
+            }
             container.innerHTML = itinerario.map(dia => `
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
                     <div class="flex justify-between items-center border-b pb-2 mb-3">
                         <span class="font-bold text-blue-600">${dia.fecha}</span>
                         <input type="text" onchange="updateDB('itinerario', ${dia.id}, 'pais', this.value)" 
@@ -115,47 +125,39 @@
                         <div class="col-span-2">
                             <label class="text-[10px] uppercase text-gray-400 block font-bold">Ciudad / Destino</label>
                             <input type="text" onchange="updateDB('itinerario', ${dia.id}, 'ciudad', this.value)" 
-                                   value="${dia.ciudad || ''}" class="w-full font-medium text-gray-700">
+                                   value="${dia.ciudad || ''}" class="w-full font-medium text-gray-700 outline-none">
                         </div>
                         <div class="bg-gray-50 p-2 rounded-lg">
                             <label class="text-[10px] text-gray-400 block font-bold">Traslado $</label>
                             <input type="number" onchange="updateDB('itinerario', ${dia.id}, 'traslado_monto', this.value)" 
-                                   value="${dia.traslado_monto}" class="w-full bg-transparent font-bold">
-                            <input type="checkbox" ${dia.traslado_pago ? 'checked' : ''} 
-                                   onchange="updateDB('itinerario', ${dia.id}, 'traslado_pago', this.checked)"
-                                   class="mt-1"> <span class="text-[10px]">Pagado</span>
+                                   value="${dia.traslado_monto}" class="w-full bg-transparent font-bold outline-none">
+                            <div class="flex items-center gap-1 mt-1">
+                                <input type="checkbox" ${dia.traslado_pago ? 'checked' : ''} 
+                                       onchange="updateDB('itinerario', ${dia.id}, 'traslado_pago', this.checked)">
+                                <span class="text-[10px] text-gray-500 font-bold">PAGADO</span>
+                            </div>
                         </div>
                         <div class="bg-gray-50 p-2 rounded-lg">
                             <label class="text-[10px] text-gray-400 block font-bold">Alojamiento $</label>
                             <input type="number" onchange="updateDB('itinerario', ${dia.id}, 'aloj_monto', this.value)" 
-                                   value="${dia.aloj_monto}" class="w-full bg-transparent font-bold">
-                            <input type="checkbox" ${dia.aloj_pago ? 'checked' : ''} 
-                                   onchange="updateDB('itinerario', ${dia.id}, 'aloj_pago', this.checked)"
-                                   class="mt-1"> <span class="text-[10px]">Pagado</span>
+                                   value="${dia.aloj_monto}" class="w-full bg-transparent font-bold outline-none">
+                            <div class="flex items-center gap-1 mt-1">
+                                <input type="checkbox" ${dia.aloj_pago ? 'checked' : ''} 
+                                       onchange="updateDB('itinerario', ${dia.id}, 'aloj_pago', this.checked)">
+                                <span class="text-[10px] text-gray-500 font-bold">PAGADO</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        function renderGlobales() {
-            const container = document.getElementById('globales-list');
-            container.innerHTML = globales.map(g => `
-                <div class="flex items-center gap-3 border-b pb-2">
-                    <input type="checkbox" ${g.pagado ? 'checked' : ''} onchange="updateDB('globales', ${g.id}, 'pagado', this.checked)">
-                    <input type="text" value="${g.descripcion || ''}" onchange="updateDB('globales', ${g.id}, 'descripcion', this.value)" 
-                           class="flex-1 text-sm outline-none" placeholder="Descripción...">
-                    <input type="number" value="${g.monto}" onchange="updateDB('globales', ${g.id}, 'monto', this.value)" 
-                           class="w-20 text-right font-bold outline-none">
-                </div>
-            `).join('');
-        }
-
         async function updateDB(tabla, id, columna, valor) {
-            const { error } = await supabase.from(tabla).update({ [columna]: valor }).eq('id', id);
-            if (!error) {
-                // Actualizar stats locales sin recargar todo para fluidez
-                const item = (tabla === 'itinerario' ? itinerario : globales).find(x => x.id === id);
+            await _supabase.from(tabla).update({ [columna]: valor }).eq('id', id);
+            // Actualización local para fluidez
+            const lista = (tabla === 'itinerario' ? itinerario : globales);
+            const item = lista.find(x => x.id === id);
+            if (item) {
                 item[columna] = valor;
                 updateStats();
             }
@@ -163,19 +165,15 @@
 
         function updateStats() {
             let total = 0; let pagado = 0;
-            
             itinerario.forEach(d => {
-                total += (Number(d.traslado_monto) + Number(d.aloj_monto) + Number(d.comida_monto) + Number(d.otros_monto));
-                if(d.traslado_pago) pagado += Number(d.traslado_monto);
-                if(d.aloj_pago) pagado += Number(d.aloj_monto);
-                if(d.comida_pago) pagado += Number(d.comida_monto);
+                total += (Number(d.traslado_monto) || 0) + (Number(d.aloj_monto) || 0);
+                if(d.traslado_pago) pagado += (Number(d.traslado_monto) || 0);
+                if(d.aloj_pago) pagado += (Number(d.aloj_monto) || 0);
             });
-
             globales.forEach(g => {
-                total += Number(g.monto);
-                if(g.pagado) pagado += Number(g.monto);
+                total += (Number(g.monto) || 0);
+                if(g.pagado) pagado += (Number(g.monto) || 0);
             });
-
             document.getElementById('stat-total').innerText = `$${total.toLocaleString()}`;
             document.getElementById('stat-pagado').innerText = `$${pagado.toLocaleString()}`;
             document.getElementById('stat-pendiente').innerText = `$${(total - pagado).toLocaleString()}`;
@@ -184,20 +182,8 @@
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            // Actualizar iconos de nav
-            document.querySelectorAll('nav button').forEach(b => b.classList.replace('text-blue-600', 'text-gray-400'));
-            event.currentTarget.classList.replace('text-gray-400', 'text-blue-600');
         }
 
-        function updateCountdown() {
-            const inicio = new Date('2026-05-04T00:00:00');
-            const hoy = new Date();
-            const diff = inicio - hoy;
-            const dias = Math.ceil(diff / (1000 * 60 * 60 * 24));
-            document.getElementById('countdown').innerText = dias > 0 ? `⏳ Faltan ${dias} días para el despegue` : "🚀 ¡En viaje!";
-        }
-
-        updateCountdown();
         fetchData();
     </script>
 </body>
