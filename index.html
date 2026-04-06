@@ -169,10 +169,27 @@
         }
 
         async function addOtrosRow(itId) {
-            const { error } = await _supabase.from('detalles_otros').insert([{ itinerario_id: itId, categoria: '', monto: 0, pagado: false }]);
-            if(!error) fetchData();
+            try {
+                // Insertamos con valores explícitos para que Supabase no proteste
+                const { error } = await _supabase
+                    .from('detalles_otros')
+                    .insert([{ 
+                        itinerario_id: itId, 
+                        categoria: 'Nuevo gasto', 
+                        monto: 0, 
+                        pagado: false 
+                    }]);
+                
+                if (error) {
+                    console.error("Error de Supabase:", error.message);
+                } else {
+                    // Recargamos los datos para que aparezca la nueva fila
+                    await fetchData();
+                }
+            } catch (err) {
+                console.error("Error inesperado:", err);
+            }
         }
-
         async function updateDB(tabla, id, columna, valor) {
             await _supabase.from(tabla).update({ [columna]: valor }).eq('id', id);
             updateStatsLocally(tabla, id, columna, valor);
